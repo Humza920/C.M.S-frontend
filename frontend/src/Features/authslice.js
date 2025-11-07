@@ -46,8 +46,10 @@ export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await api.get("/api/auth/getme", { withCredentials: true });
-      return data.user;
+      const { data } = await api.get("/api/auth/getMe", { withCredentials: true });
+      console.log(data.data);
+      
+      return data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Not authenticated");
     }
@@ -59,6 +61,7 @@ const authSlice = createSlice({
   initialState: {
     user: null,
     token: null,
+    role:null,
     loading: false,
     error: null,
   },
@@ -72,7 +75,7 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
+        state.user = action.payload;
 
       })
       .addCase(login.rejected, (state, action) => {
@@ -87,7 +90,7 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
+        state.user = action.payload;
        
       })
       .addCase(register.rejected, (state, action) => {
@@ -105,10 +108,13 @@ const authSlice = createSlice({
       // 🔹 CHECK AUTH
       .addCase(checkAuth.pending, (state) => {
         state.loading = true;
+        state.role = null
+        state.user = null
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.user = action.payload
+        state.role = action.payload.userId.role
       })
       .addCase(checkAuth.rejected, (state, action) => {
         state.loading = false;
