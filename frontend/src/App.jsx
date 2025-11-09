@@ -12,7 +12,7 @@ import ModalRoute from "./Components/ModalRoute";
 // Pages
 import Home from "./Pages/Home";
 import Contact from "./Pages/Contact";
-import Services from "./Pages/Services";
+import About from "./Pages/About";
 import OurDoctors from "./Pages/OurDoctors";
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
@@ -30,7 +30,7 @@ const router = createBrowserRouter([
     children: [
       // Public routes
       { index: true, element: <Home /> },
-      { path: "services", element: <Services /> },
+      { path: "about", element: <About /> },
       { path: "contact", element: <Contact /> },
       { path: "our-doctors", element: <OurDoctors /> },
       { path: "login", element: <Login /> },
@@ -99,6 +99,7 @@ function App() {
   // ✅ Check user authentication on app load
   useEffect(() => {
     dispatch(checkAuth());
+    dispatch(fetchDoctorsAll())
   }, []);
 
   // ✅ Fetch doctors after authentication

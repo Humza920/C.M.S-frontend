@@ -5,7 +5,7 @@ import { login, checkAuth } from "../Features/authslice";
 import toast from "react-hot-toast";
 
 export default function Login() {
-  const { user, loading , role } = useSelector((state) => state.auth);
+  const { user, loading, role } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [emailAddress, setEmail] = useState("");
@@ -31,21 +31,19 @@ export default function Login() {
   };
 
   useEffect(() => {
-if (user) {
+    if (user) {
       if (role === "Patient") {
-      navigate("/");
+        navigate("/");
+      } else {
+        navigate("/dashboard");
+      }
     }
-    else{
-      navigate("/dashboard");
-    }
-}
   }, [user]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4 font-poppins">
       {/* Main Login Card */}
       <div className="bg-white/90 backdrop-blur-sm shadow-2xl rounded-3xl p-8 w-full max-w-md border border-white/50">
-        
         {/* Header Section */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
@@ -54,9 +52,7 @@ if (user) {
           <h2 className="text-3xl font-bold text-gray-800 mb-2">
             Welcome Back
           </h2>
-          <p className="text-gray-600">
-            Sign in to your account
-          </p>
+          <p className="text-gray-600">Sign in to your account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -81,6 +77,7 @@ if (user) {
           </div>
 
           {/* Password Input */}
+          {/* Password Input */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">
               Password
@@ -94,14 +91,13 @@ if (user) {
                 required
                 className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl outline-none focus:border-blue-500 focus:bg-white transition-all duration-300 placeholder-gray-400 text-gray-800 font-medium pr-12"
               />
+              {/* Eye Toggle Button (clinic-relevant) */}
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors duration-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-500 transition-all duration-200 focus:outline-none focus:ring-0"
               >
-                <span className="text-sm">
-                  {showPassword ? '🙈' : '👁️'}
-                </span>
+                {showPassword ? "👁️" : "🧿"}
               </button>
             </div>
           </div>
@@ -109,7 +105,10 @@ if (user) {
           {/* Remember Me & Forgot Password */}
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center text-gray-600 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 text-blue-500 rounded focus:ring-blue-400" />
+              <input
+                type="checkbox"
+                className="w-4 h-4 text-blue-500 rounded focus:ring-blue-400"
+              />
               <span className="ml-2">Remember me</span>
             </label>
             <Link

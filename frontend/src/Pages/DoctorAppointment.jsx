@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchDoctorAppointments } from "../Features/dashboardslice";
+import { fetchDoctorAppointments } from "../Features/appointmentslice";
 import { openModal, addData } from "../Features/modalSlice";
 
 const DoctorAppointments = () => {

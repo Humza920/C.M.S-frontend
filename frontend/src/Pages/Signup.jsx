@@ -42,13 +42,14 @@ export default function Signup() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4 font-poppins">
       {/* Responsive Card */}
       <div className="bg-white/90 backdrop-blur-md shadow-2xl rounded-3xl flex flex-col lg:flex-row max-w-5xl w-full overflow-hidden">
-        
         {/* Left: Profile Image - Hidden on mobile, visible on lg+ */}
         <div className="lg:w-1/3 bg-gradient-to-br from-blue-500 to-purple-600 flex flex-col items-center justify-center p-6 lg:p-8 hidden lg:flex">
           <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full bg-white/20 flex items-center justify-center shadow-lg mb-4">
             <span className="text-4xl lg:text-5xl text-white">👤</span>
           </div>
-          <p className="text-white text-center text-sm lg:text-base">Profile Image</p>
+          <p className="text-white text-center text-sm lg:text-base">
+            Profile Image
+          </p>
         </div>
 
         {/* Right: Form */}
@@ -61,9 +62,7 @@ export default function Signup() {
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
               Create Account
             </h2>
-            <p className="text-gray-600 text-sm">
-              Sign up to join HealthCare+
-            </p>
+            <p className="text-gray-600 text-sm">Sign up to join HealthCare+</p>
           </div>
 
           {/* Header for desktop */}
@@ -76,7 +75,10 @@ export default function Signup() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6 lg:grid lg:grid-cols-2 lg:gap-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 lg:space-y-6 lg:grid lg:grid-cols-2 lg:gap-6"
+          >
             {/* Full Name */}
             <div className="lg:col-span-1">
               <label className="block text-gray-700 font-medium mb-2 text-sm lg:text-base">
@@ -123,25 +125,27 @@ export default function Signup() {
             </div>
 
             {/* Password */}
-            <div className="lg:col-span-1">
-              <label className="block text-gray-700 font-medium mb-2 text-sm lg:text-base">
+            {/* Password Input */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
                 Password
               </label>
-              <div className="flex items-center border-2 border-gray-200 rounded-xl focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition duration-300">
+              <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Create password"
+                  placeholder="Enter your password"
                   required
-                  className="w-full px-4 py-3 rounded-l-xl outline-none placeholder-gray-400 text-gray-800 text-sm lg:text-base"
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl outline-none focus:border-blue-500 focus:bg-white transition-all duration-300 placeholder-gray-400 text-gray-800 font-medium pr-12"
                 />
+                {/* Eye Toggle Button (clinic-relevant) */}
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="px-4 py-3 text-gray-500 hover:text-blue-500 transition duration-200 rounded-r-xl"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-500 transition-all duration-200 focus:outline-none focus:ring-0"
                 >
-                  {showPassword ? "🙈" : "👁️"}
+                  {showPassword ? "👁️" : "🧿"}
                 </button>
               </div>
             </div>

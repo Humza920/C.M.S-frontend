@@ -3,19 +3,21 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../Features/authslice";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import { Menu, X, User, Calendar, FileText, LogOut, Settings, Heart, Clock, Phone } from "lucide-react";
 
 const Navbar = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const dropdownRef = useRef(null);
 
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -32,245 +34,266 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-const handleLogout = async (e) => {
-  e.preventDefault();
-
-  try {
-    await dispatch(logout()).unwrap();
-
-    setDropdownOpen(false);
-
-    toast.success("Logged out successfully! See you soon!", {
-      duration: 2000,
-      position: "top-right",
-    });
-
-    setTimeout(() => {
-      navigate("/login");
-    }, 1000);
-
-  } catch (error) {
-    toast.error(error?.message || "Logout failed! ❌");
-  }
-};
-
-
-  const handleProfileClick = () => {
-    setDropdownOpen(false);
-    toast.success("Navigating to your profile");
-  };
-
-  const handleAppointmentsClick = () => {
-    setDropdownOpen(false);
-    toast.loading("Loading your appointments...", { duration: 1000 });
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    try {
+      await dispatch(logout()).unwrap();
+      setDropdownOpen(false);
+      toast.success("Logged out successfully! 👋", {
+        duration: 2000,
+        position: "top-right",
+      });
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
+    } catch (error) {
+      toast.error(error?.message || "Logout failed! ❌");
+    }
   };
 
   return (
-    <nav className={`fixed w-full top-0 left-0 z-50 transition-all duration-300 ${
-      isScrolled 
-        ? "bg-white/95 backdrop-blur-lg shadow-xl border-b border-blue-100/50" 
-        : "bg-gradient-to-r from-blue-600 to-purple-700 shadow-lg"
-    }`}>
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex justify-between items-center">
-          {/* Logo with enhanced design */}
-          <Link 
-            to="/" 
-            className="flex items-center gap-2 group"
-          >
-            <div className={`p-2 rounded-xl transition-all duration-300 group-hover:scale-110 ${
-              isScrolled 
-                ? "bg-blue-600 text-white" 
-                : "bg-white/20 text-white"
-            }`}>
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-              </svg>
+    <>
+      {/* Top Info Bar */}
+      <div className="fixed top-0 w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-2 z-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex justify-between items-center text-sm">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-yellow-300" />
+                <span className="font-medium">Mon-Sat: 10:00 AM - 8:00 PM</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-yellow-300" />
+                <span className="font-medium">+1 (555) 123-HELP</span>
+              </div>
             </div>
-            <span className={`text-2xl font-bold transition-all duration-300 ${
-              isScrolled ? "text-blue-600" : "text-white"
-            }`}>
-              HealthCare<span className="text-green-400">+</span>
-            </span>
-          </Link>
-
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center gap-8">
-            <Link 
-              to="/" 
-              className={`font-medium transition-all duration-300 hover:scale-105 ${
-                isScrolled 
-                  ? "text-gray-700 hover:text-blue-600" 
-                  : "text-white/90 hover:text-white"
-              }`}
-            >
-              Home
-            </Link>
-            <Link 
-              to="/our-doctors" 
-              className={`font-medium transition-all duration-300 hover:scale-105 ${
-                isScrolled 
-                  ? "text-gray-700 hover:text-blue-600" 
-                  : "text-white/90 hover:text-white"
-              }`}
-            >
-              Our Doctors
-            </Link>
-            <Link 
-              to="/services" 
-              className={`font-medium transition-all duration-300 hover:scale-105 ${
-                isScrolled 
-                  ? "text-gray-700 hover:text-blue-600" 
-                  : "text-white/90 hover:text-white"
-              }`}
-            >
-              Services
-            </Link>
-            <Link 
-              to="/contact" 
-              className={`font-medium transition-all duration-300 hover:scale-105 ${
-                isScrolled 
-                  ? "text-gray-700 hover:text-blue-600" 
-                  : "text-white/90 hover:text-white"
-              }`}
-            >
-              Contact
-            </Link>
-          </div>
-
-          {/* Auth Section */}
-          <div className="flex items-center gap-4">
-            {!user ? (
-              <div className="flex items-center gap-3">
-                <Link
-                  to="/login"
-                  className={`px-5 py-2.5 font-medium rounded-xl transition-all duration-300 hover:scale-105 ${
-                    isScrolled
-                      ? "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/25"
-                      : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm border border-white/30"
-                  }`}
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className={`px-5 py-2.5 font-medium rounded-xl transition-all duration-300 hover:scale-105 ${
-                    isScrolled
-                      ? "border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
-                      : "bg-white text-blue-600 hover:bg-blue-50 border-2 border-white"
-                  }`}
-                >
-                  Sign Up
-                </Link>
-              </div>
-            ) : (
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 ${
-                    isScrolled
-                      ? "bg-white text-gray-700 shadow-lg hover:shadow-xl border border-gray-100"
-                      : "bg-white/20 text-white backdrop-blur-sm border border-white/30 hover:bg-white/30"
-                  }`}
-                >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
-                    isScrolled 
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white" 
-                      : "bg-white text-blue-600"
-                  }`}>
-                    {user.userName?.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="font-medium">{user.userName}</span>
-                  <svg 
-                    className={`w-4 h-4 transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`}
-                    fill="currentColor" 
-                    viewBox="0 0 20 20"
-                  >
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-
-                {/* Enhanced Dropdown */}
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-100/50 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
-                    {/* User Info Header */}
-                    <div className="p-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-semibold">
-                          {user.userName?.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-semibold">{user.userName}</p>
-                          <p className="text-white/80 text-sm">{user.email}</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Dropdown Items */}
-                    <div className="p-2">
-                      <Link
-                        to="/my-appointments"
-                        className="flex items-center gap-3 px-3 py-3 text-gray-700 hover:bg-blue-50 rounded-xl transition-all duration-200 group"
-                        onClick={handleAppointmentsClick}
-                      >
-                        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span>My Appointments</span>
-                      </Link>
-                      
-                      <Link
-                        to="/my-case-history"
-                        className="flex items-center gap-3 px-3 py-3 text-gray-700 hover:bg-blue-50 rounded-xl transition-all duration-200 group"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span>My Case History</span>
-                      </Link>
-                      
-                      <Link
-                        to="/my-profile"
-                        className="flex items-center gap-3 px-3 py-3 text-gray-700 hover:bg-blue-50 rounded-xl transition-all duration-200 group"
-                        onClick={handleProfileClick}
-                      >
-                        <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        <span>My Profile</span>
-                      </Link>
-                      
-                      <div className="border-t border-gray-100 my-2"></div>
-                      
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-3 w-full px-3 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 group"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        <span>Logout</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        <div className="md:hidden flex justify-center mt-4 pb-2">
-          <div className="flex items-center gap-6">
-            <Link to="/" className={`text-sm font-medium ${isScrolled ? 'text-gray-700' : 'text-white/90'}`}>Home</Link>
-            <Link to="/our-doctors" className={`text-sm font-medium ${isScrolled ? 'text-gray-700' : 'text-white/90'}`}>Doctors</Link>
-            <Link to="/services" className={`text-sm font-medium ${isScrolled ? 'text-gray-700' : 'text-white/90'}`}>Services</Link>
-            <Link to="/contact" className={`text-sm font-medium ${isScrolled ? 'text-gray-700' : 'text-white/90'}`}>Contact</Link>
+            <div className="hidden md:block">
+              <span className="text-yellow-300 font-semibold">Emergency Line: 24/7 Available</span>
+            </div>
           </div>
         </div>
       </div>
-    </nav>
+
+      {/* Main Navbar */}
+      <nav className={`fixed w-full top-8 left-0 z-50 transition-all duration-500 ${
+        isScrolled 
+          ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-200" 
+          : "bg-gradient-to-r from-blue-600 to-blue-800 shadow-xl"
+      }`}>
+        <div className="max-w-7xl mx-auto px-6 py-3">
+          <div className="flex justify-between items-center">
+            
+            {/* Logo - Simple and Clean */}
+            <Link 
+              to="/" 
+              className="flex items-center gap-3 group"
+            >
+              <div className={`p-2 rounded-xl transition-all duration-300 ${
+                isScrolled 
+                  ? "bg-blue-600" 
+                  : "bg-white/20"
+              }`}>
+                <Heart className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className={`text-2xl font-bold tracking-tight ${
+                  isScrolled ? "text-blue-800" : "text-white"
+                }`}>
+                  MediCare
+                </span>
+                <span className={`text-xs font-medium ${
+                  isScrolled ? "text-blue-600" : "text-blue-200"
+                }`}>
+                  Quality Healthcare
+                </span>
+              </div>
+            </Link>
+
+            {/* Desktop Navigation - Centered */}
+            <div className="hidden lg:flex items-center gap-10 absolute left-1/2 transform -translate-x-1/2">
+              {[
+                { path: "/", label: "Home" },
+                { path: "/our-doctors", label: "Doctors" },
+                { path: "/about", label: "About" },
+                { path: "/contact", label: "Contact" }
+              ].map((item) => (
+                <Link 
+                  key={item.path}
+                  to={item.path} 
+                  className={`font-semibold text-sm transition-all duration-300 hover:scale-105 ${
+                    isScrolled 
+                      ? "text-gray-700 hover:text-blue-600" 
+                      : "text-white hover:text-yellow-300"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Auth Section */}
+            <div className="flex items-center gap-3">
+              {!user ? (
+                <div className="flex items-center gap-3">
+                  <Link
+                    to="/login"
+                    className={`px-5 py-2 font-semibold rounded-lg transition-all duration-300 ${
+                      isScrolled
+                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                        : "bg-white text-blue-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className={`px-5 py-2 font-semibold rounded-lg transition-all duration-300 ${
+                      isScrolled
+                        ? "border border-blue-600 text-blue-600 hover:bg-blue-50"
+                        : "border border-white text-white hover:bg-white/10"
+                    }`}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              ) : (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 ${
+                      isScrolled
+                        ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        : "bg-white/10 text-white hover:bg-white/20"
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${
+                      isScrolled ? "bg-blue-600" : "bg-blue-500"
+                    }`}>
+                      {user.userName?.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="font-medium max-w-[100px] truncate">{user.userName}</span>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {dropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                      {/* User Info */}
+                      <div className="p-4 bg-blue-600 text-white">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center font-bold text-white">
+                            {user.userName?.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold truncate">{user.userName}</p>
+                            <p className="text-blue-100 text-sm truncate">{user.email}</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Dropdown Items */}
+                      <div className="p-2 space-y-1">
+                        {[
+                          { icon: User, label: "My Profile", path: "/my-profile" },
+                          { icon: Calendar, label: "Appointments", path: "/my-appointments" },
+                          { icon: FileText, label: "Medical Records", path: "/medical-records" },
+                          { icon: Settings, label: "Settings", path: "/settings" }
+                        ].map((item) => (
+                          <Link
+                            key={item.label}
+                            to={item.path}
+                            className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                            onClick={() => setDropdownOpen(false)}
+                          >
+                            <item.icon className="w-4 h-4 text-blue-600" />
+                            <span className="font-medium">{item.label}</span>
+                          </Link>
+                        ))}
+                        
+                        <div className="border-t border-gray-200 my-1"></div>
+                        
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 w-full px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span className="font-medium">Logout</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className={`lg:hidden p-2 rounded-lg transition-all duration-300 ${
+                  isScrolled
+                    ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation Menu */}
+          {mobileMenuOpen && (
+            <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-lg">
+              <div className="px-6 py-6 space-y-4">
+                {/* Clinic Info in Mobile */}
+                <div className="bg-blue-50 rounded-lg p-3 mb-2 border border-blue-100">
+                  <div className="flex items-center gap-2 text-blue-800 mb-1">
+                    <Clock className="w-4 h-4" />
+                    <span className="font-semibold text-sm">Mon-Sat: 10AM - 8PM</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-blue-800">
+                    <Phone className="w-4 h-4" />
+                    <span className="font-semibold text-sm">+1 (555) 123-HELP</span>
+                  </div>
+                </div>
+
+                {[
+                  { path: "/", label: "Home" },
+                  { path: "/our-doctors", label: "Doctors" },
+                  { path: "/about", label: "About" },
+                  { path: "/contact", label: "Contact" }
+                ].map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className="block font-semibold text-gray-700 hover:text-blue-600 transition-all duration-300 py-2 border-b border-gray-100"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                
+                {!user && (
+                  <div className="flex gap-3 pt-4">
+                    <Link
+                      to="/login"
+                      className="flex-1 text-center bg-blue-600 text-white font-semibold py-2 rounded-lg transition-all duration-300"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="flex-1 text-center border border-blue-600 text-blue-600 font-semibold py-2 rounded-lg transition-all duration-300"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
+    </>
   );
 };
 

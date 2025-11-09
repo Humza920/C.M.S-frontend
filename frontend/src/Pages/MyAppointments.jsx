@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMyAppointments } from "../Features/dashboardslice";
+import {fetchMyAppointments} from "../Features/appointmentslice"
 
 const MyAppointments = () => {
   const dispatch = useDispatch();
-  const { appointments, loading, error } = useSelector((state) => state.dashboard);
+  const { appointments, loading, error } = useSelector((state) => state.appointment);
+  console.log(appointments);
+  
 
   useEffect(() => {
     dispatch(fetchMyAppointments());
