@@ -49,9 +49,23 @@ export const checkAuth = createAsyncThunk(
       const { data } = await api.get("/api/auth/getMe", { withCredentials: true });
       console.log(data.data);
       
-      return data.data;
+      return data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Not authenticated");
+    }
+  }
+);
+
+export const updateProfile = createAsyncThunk(
+  "auth/updateProfile",
+  async (profileData, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post("/api/auth/updnCompProfile", profileData, {
+        withCredentials: true,
+      });
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || "Failed to update profile");
     }
   }
 );
@@ -60,7 +74,6 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
-    token: null,
     role:null,
     loading: false,
     error: null,
@@ -75,13 +88,10 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
-
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-       
       })
       // 🔹 REGISTER
       .addCase(register.pending, (state) => {
@@ -89,13 +99,12 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(register.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload;
-       
+        state.loading = false       
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.user = null
        
       })
       // 🔹 LOGOUT
@@ -113,8 +122,8 @@ const authSlice = createSlice({
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload
-        state.role = action.payload.userId.role
+        state.user = action.payload.data
+        state.role = action.payload.data.userId.role
       })
       .addCase(checkAuth.rejected, (state, action) => {
         state.loading = false;
