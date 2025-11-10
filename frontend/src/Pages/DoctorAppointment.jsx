@@ -5,8 +5,8 @@ import { openModal, addData } from "../Features/modalSlice";
 
 const DoctorAppointments = () => {
   const dispatch = useDispatch();
-  const { doctorAppointments, loading, error } = useSelector(
-    (state) => state.dashboard
+  const { appointments , loading, error } = useSelector(
+    (state) => state.appointment
   );
   const { isOpen, modalType, modalData } = useSelector((state) => state.modal);
 
@@ -22,9 +22,9 @@ const DoctorAppointments = () => {
   if (loading) return <p className="text-center mt-10">Loading appointments...</p>;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
-  const appointments = Array.isArray(doctorAppointments)
-    ? doctorAppointments
-    : doctorAppointments?.data || [];
+  const appointment = Array.isArray(appointments)
+    ? appointments
+    : appointments?.data || [];
 
   if (!appointments.length)
     return <p className="text-center mt-10">No appointments found.</p>;
@@ -33,7 +33,7 @@ const DoctorAppointments = () => {
     <div className="max-w-5xl mx-auto p-6">
       <h2 className="text-2xl font-semibold mb-6">My Appointments</h2>
       <div className="space-y-4">
-        {appointments.map((appt) => (
+        {appointment.map((appt) => (
           <div
             key={appt._id}
             className="bg-white shadow-md rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center cursor-pointer hover:bg-gray-50"

@@ -120,11 +120,26 @@ const authSlice = createSlice({
         state.role = null
         state.user = null
       })
-      .addCase(checkAuth.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload.data
-        state.role = action.payload.data.userId.role
-      })
+
+.addCase(checkAuth.fulfilled, (state, action) => {
+  state.loading = false;
+  const data = action.payload.data;
+
+  state.user = data;
+
+  // Check if userId exists (for patient/doctor)
+  if (data.userId && data.userId.role) {
+    state.role = data.userId.role;
+  } 
+  // Else directly use role from data (for staff/admin etc.)
+  else if (data.role) {
+    state.role = data.role;
+  } 
+  else {
+    state.role = null; // fallback if no role found
+  }
+})
+
       .addCase(checkAuth.rejected, (state, action) => {
         state.loading = false;
         state.user = null;

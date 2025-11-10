@@ -53,29 +53,8 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Top Info Bar */}
-      <div className="fixed top-0 w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-2 z-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex justify-between items-center text-sm">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-yellow-300" />
-                <span className="font-medium">Mon-Sat: 10:00 AM - 8:00 PM</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-yellow-300" />
-                <span className="font-medium">+1 (555) 123-HELP</span>
-              </div>
-            </div>
-            <div className="hidden md:block">
-              <span className="text-yellow-300 font-semibold">Emergency Line: 24/7 Available</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Navbar */}
-      <nav className={`fixed w-full top-8 left-0 z-50 transition-all duration-500 ${
+      <nav className={`fixed w-full  left-0 z-50 transition-all duration-500 ${
         isScrolled 
           ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-200" 
           : "bg-gradient-to-r from-blue-600 to-blue-800 shadow-xl"
@@ -196,7 +175,6 @@ const Navbar = () => {
                           { icon: User, label: "My Profile", path: "/my-profile" },
                           { icon: Calendar, label: "Appointments", path: "/my-appointments" },
                           { icon: FileText, label: "Medical Records", path: "/medical-records" },
-                          { icon: Settings, label: "Settings", path: "/settings" }
                         ].map((item) => (
                           <Link
                             key={item.label}

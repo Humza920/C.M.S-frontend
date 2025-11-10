@@ -2,6 +2,27 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { api } from "../api";
 
 
+
+
+// --- Cancel Appointment ---
+export const cancelAppointment = createAsyncThunk(
+  "dashboard/cancelAppointment",
+  async (appointmentId, thunkAPI) => {
+    try {
+      const { data } = await api.delete(
+        `/api/appointment/cancel/${appointmentId}`,
+        { withCredentials: true }
+      );
+      return data.appointment || appointmentId; // backend agar appointment return nahi kare to ID bhi use ho sakta
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to cancel appointment"
+      );
+    }
+  }
+);
+
+
 // --- Fetch My Appointments ---
 export const fetchMyAppointments = createAsyncThunk(
   "dashboard/fetchMyAppointments",
@@ -234,6 +255,30 @@ const appointmentSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+        // --- Cancel Appointment ---
+    .addCase(cancelAppointment.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+      state.success = null;
+    })
+    .addCase(cancelAppointment.fulfilled, (state, action) => {
+      state.loading = false;
+      state.success = "Appointment cancelled successfully!";
+      // Remove or update cancelled appointment
+      const index = state.appointments.findIndex(a => a._id === action.payload._id || a._id === action.payload);
+      if (index !== -1) {
+        // Option 1: Remove from array
+        // state.appointments.splice(index, 1);
+        
+        // Option 2: Soft update status
+        state.appointments[index].status = "Cancelled";
+      }
+    })
+    .addCase(cancelAppointment.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    });
   },
   
 });

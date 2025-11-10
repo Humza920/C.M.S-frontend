@@ -15,7 +15,7 @@ const Home = () => {
     navigate("/dashboard");
   }
 
-    if (user && !user.userId.isProfileComplete) {
+    if (user && !user.userId?.isProfileComplete) {
       dispatch(openModal("completeProfile"));
     }
   }, [user]);

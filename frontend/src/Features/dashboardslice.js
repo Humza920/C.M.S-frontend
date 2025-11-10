@@ -1,8 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { api } from "../api";
 
-// ... existing imports and other async thunks ...
-// ... rest of your existing slice code ...
+// --- Fetch Dashboard Data ---
+export const fetchDashboardData = createAsyncThunk(
+  "dashboard/fetchDashboardData",
+  async (_, thunkAPI) => {
+    try {
+      const { data } = await api.get("/api/dashboard", { withCredentials: true });
+      return data.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch dashboard data"
+      );
+    }
+  }
+);
 
 // --- Fetch All Doctors ---
 export const fetchDoctorsAll = createAsyncThunk(
@@ -18,7 +30,6 @@ export const fetchDoctorsAll = createAsyncThunk(
     }
   }
 );
-
 
 // --- Fetch Available Slots ---
 export const fetchAvailableSlots = createAsyncThunk(
@@ -38,10 +49,6 @@ export const fetchAvailableSlots = createAsyncThunk(
   }
 );
 
-
-
-
-
 // --- Initial State ---
 const initialState = {
   doctors: [],
@@ -49,13 +56,11 @@ const initialState = {
   slots: [],
   appointments: [],
   doctorAppointments: {},
-  caseHistory: {},
   loading: false,
   error: null,
   success: null,
 };
 
-// --- Slice ---
 // --- Slice ---
 const dashboardSlice = createSlice({
   name: "dashboard",
@@ -68,6 +73,23 @@ const dashboardSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // --- Fetch Dashboard Data ---
+      .addCase(fetchDashboardData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDashboardData.fulfilled, (state, action) => {
+        state.loading = false;
+        state.doctors = action.payload.doctors || [];
+        state.patients = action.payload.patients || [];
+        state.appointments = action.payload.appointments || [];
+        state.doctorAppointments = action.payload.doctorAppointments || {};
+      })
+      .addCase(fetchDashboardData.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       // --- Fetch Doctors ---
       .addCase(fetchDoctorsAll.pending, (state) => {
         state.loading = true;
@@ -82,39 +104,19 @@ const dashboardSlice = createSlice({
         state.error = action.payload;
       })
 
-
-
-     
-
-      // --- Book Appointment ---
-      // .addCase(bookAppointment.pending, (state) => {
-      //   state.loading = true;
-      //   state.error = null;
-      //   state.success = null;
-      // })
-      // .addCase(bookAppointment.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.success = "Appointment booked successfully!";
-      //   state.appointments.push(action.payload);
-      // })
-      // .addCase(bookAppointment.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.payload;
-      // })
-
-      // --- Fetch My Appointments (Patient) ---
-      // .addCase(fetchMyAppointments.pending, (state) => {
-      //   state.loading = true;
-      //   state.error = null;
-      // })
-      // .addCase(fetchMyAppointments.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.appointments = action.payload;
-      // })
-      // .addCase(fetchMyAppointments.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.payload;
-      // });
+      // --- Fetch Available Slots ---
+      .addCase(fetchAvailableSlots.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAvailableSlots.fulfilled, (state, action) => {
+        state.loading = false;
+        state.slots = action.payload;
+      })
+      .addCase(fetchAvailableSlots.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 

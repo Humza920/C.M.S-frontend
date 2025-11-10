@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { checkAuth } from "./Features/authslice";
 import { fetchDoctorsAll } from "./Features/dashboardslice";
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from "react-hot-toast";
+
 // Layouts & Components
 import Layout from "./Layouts/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -21,14 +22,17 @@ import MyAppointments from "./Pages/MyAppointments";
 import MyCaseHistory from "./Pages/MyCaseHistory";
 import MyProfile from "./Pages/MyProfile";
 import DoctorAppointments from "./Pages/DoctorAppointment";
+import ManageDoctors from "./Pages/ManageDoctors";
+import ManagePatients from "./Pages/ManagePatients";
+import StaffAppointments from "./Pages/StaffAppointments";
 
-// ✅ Single Router Setup (All routes managed here)
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
     children: [
-      // Public routes
+      // --- Public Routes ---
       { index: true, element: <Home /> },
       { path: "about", element: <About /> },
       { path: "contact", element: <Contact /> },
@@ -36,7 +40,7 @@ const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "signup", element: <Signup /> },
 
-      // Patient routes
+      // --- Patient Routes ---
       {
         path: "my-appointments",
         element: (
@@ -64,7 +68,7 @@ const router = createBrowserRouter([
     ],
   },
 
-  // Doctor / Staff Dashboard routes
+  // --- Doctor / Staff Dashboard ---
   {
     path: "/dashboard",
     element: (
@@ -73,41 +77,63 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { path: "appointments", element: <DoctorAppointments /> },
+      // Doctor Pages
       {
-        path: "my-profile",
+        path: "appointments",
         element: (
-          <ProtectedRoute allowedRoles={["Doctor", "Staff"]}>
-            <MyProfile />
+          <ProtectedRoute allowedRoles={["Doctor"]}>
+            <DoctorAppointments />
           </ProtectedRoute>
         ),
       },
-      // 👇 future dashboard pages add karna yahan simple hoga
-      // { path: "reports", element: <ReportsPage /> },
-      // { path: "patients", element: <DoctorPatients /> },
+      {
+        path: "case-history",
+        element: (
+          <ProtectedRoute allowedRoles={["Doctor"]}>
+            <MyCaseHistory />
+          </ProtectedRoute>
+        ),
+      },
+
+      // Staff Pages
+      {
+        path: "manage-doctors",
+        element: (
+          <ProtectedRoute allowedRoles={["Staff"]}>
+            <ManageDoctors />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "manage-patients",
+        element: (
+          <ProtectedRoute allowedRoles={["Staff"]}>
+            <ManagePatients />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "staffappointments",
+        element: (
+          <ProtectedRoute allowedRoles={["Staff"]}>
+            <StaffAppointments />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
 
-  // Fallback route (invalid URLs → redirect to home)
+  // Fallback Route
   { path: "*", element: <Navigate to="/" replace /> },
 ]);
 
 function App() {
   const dispatch = useDispatch();
-  const { user, loading } = useSelector((state) => state.auth);
 
-  // ✅ Check user authentication on app load
   useEffect(() => {
     dispatch(checkAuth());
-    dispatch(fetchDoctorsAll())
-  }, []);
-
-  // ✅ Fetch doctors after authentication
-  // useEffect(() => {
-  //   if (user) dispatch(fetchDoctorsAll());
-  // }, [user, dispatch]);
-
-  // if (loading) return <p>Loading authentication...</p>;
+    dispatch(fetchDoctorsAll());
+  }, [dispatch]);
 
   return (
     <>

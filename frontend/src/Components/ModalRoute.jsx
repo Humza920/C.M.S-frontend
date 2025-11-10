@@ -4,6 +4,7 @@ import AppointmentModal from "./AppointmentModal";
 import UpdateAppointmentModal from "./UpdateAppointmentModal";
 import { closeModal } from "../Features/modalSlice";
 import { useEffect } from "react";
+import AppointmentDetailsModal from "./AppointmentDetailsModal";
 
 export default function ModalRoute() {
   const dispatch = useDispatch();
@@ -41,6 +42,8 @@ export default function ModalRoute() {
         {modalType === "completeProfile" && <CompleteProfile />}
         {modalType === "appointment" && <AppointmentModal />}
         {modalType === "updateAppointment" && <UpdateAppointmentModal />}
+        {modalType === "appointmentDetails" && <AppointmentDetailsModal />}
+
       </div>
     </div>
   );

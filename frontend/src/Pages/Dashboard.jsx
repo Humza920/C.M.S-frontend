@@ -1,23 +1,28 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { User, ClipboardList, CalendarCheck, Users } from "lucide-react";
+import { useSelector , useDispatch} from "react-redux";
+import { User,  CalendarCheck, Users } from "lucide-react";
+import { useEffect } from "react";
+import { fetchDashboardData } from "../Features/dashboardslice";
 
 const Dashboard = () => {
   const { user, role } = useSelector((state) => state.auth);
-
+const dispatch = useDispatch()
+  useEffect(()=>{
+    dispatch(fetchDashboardData())
+  },[])
   if (!user) return null; // agar user login nahi hai toh kuch nahi dikhayega
 
   // --- Role-based links ---
   const links = {
     Doctor: [
-      { path: "/dashboard/patients", label: "My Patients", icon: Users },
       { path: "/dashboard/appointments", label: "Appointments", icon: CalendarCheck },
+      { path: "/dashboard/history", label: "History", icon: Users },
       { path: "/dashboard/my-profile", label: "My Profile", icon: User },
     ],
     Staff: [
       { path: "/dashboard/manage-doctors", label: "Manage Doctors", icon: Users },
       { path: "/dashboard/manage-patients", label: "Manage Patients", icon: Users },
-      { path: "/dashboard/appointments", label: "Appointments", icon: CalendarCheck },
+      { path: "/dashboard/staffappointments", label: "Appointments", icon: CalendarCheck },
     ],
   };
 

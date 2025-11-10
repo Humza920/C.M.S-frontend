@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closeModal } from "../Features/modalSlice";
-import { fetchAvailableSlots, bookAppointment, clearMessages} from "../Features/appointmentslice";
+import { fetchAvailableSlots, bookAppointment, clearMessages } from "../Features/appointmentslice";
 import { 
   X, 
   Calendar, 
@@ -16,25 +16,33 @@ import {
   Sparkles,
   BadgeCheck
 } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 
 const AppointmentModal = () => {
   const dispatch = useDispatch();
   const { modalData: doctor } = useSelector((state) => state.modal);
   const { slots, loading, success, error } = useSelector((state) => state.appointment);
+  const { user , role} = useSelector((state) => state.auth); // ✅ user info from auth slice
 
   const [activeTab, setActiveTab] = useState("week");
   const [range, setRange] = useState("week");
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [bookingStep, setBookingStep] = useState(1); // 1: Select slot, 2: Confirm details
 
+  // ✅ Fetch Slots
   useEffect(() => {
     if (doctor) dispatch(fetchAvailableSlots({ doctorId: doctor._id, range }));
   }, [doctor, range, dispatch]);
 
+  // ✅ Handle Toasts for Success & Error
   useEffect(() => {
-    if (success || error) {
-      const timer = setTimeout(() => dispatch(clearMessages()), 5000);
-      return () => clearTimeout(timer);
+    if (success) {
+      toast.success(success, { duration: 4000, position: "top-center" });
+      setTimeout(() => dispatch(clearMessages()), 5000);
+    }
+    if (error) {
+      toast.error(error, { duration: 4000, position: "top-center" });
+      setTimeout(() => dispatch(clearMessages()), 5000);
     }
   }, [success, error, dispatch]);
 
@@ -44,14 +52,33 @@ const AppointmentModal = () => {
     setSelectedSlot(null);
   };
 
+  // ✅ Booking Handler with Patient Check
   const handleBookAppointment = () => {
+    if (!user) {
+      toast.error("Please login first to book an appointment.", {
+        position: "top-center",
+      });
+      return;
+    }
+
+    if (role !== "Patient") {
+      toast.error("Only patients can book an appointment.", {
+        position: "top-center",
+      });
+      return;
+    }
+
     if (selectedSlot) {
-      dispatch(bookAppointment({
-        doctorId: selectedSlot.doctorId,
-        date: selectedSlot.date,
-        time: selectedSlot.time,
-        day: selectedSlot.day
-      }));
+      dispatch(
+        bookAppointment({
+          doctorId: selectedSlot.doctorId,
+          date: selectedSlot.date,
+          time: selectedSlot.time,
+          day: selectedSlot.day,
+        })
+      );
+    } else {
+      toast.error("Please select a slot first!", { position: "bottom-center" });
     }
   };
 
