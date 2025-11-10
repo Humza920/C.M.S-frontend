@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchMyAppointments } from "../Features/appointmentslice";
 import { addData, openModal } from "../Features/modalSlice";
 import { Calendar, Clock, MapPin, Eye, Stethoscope } from "lucide-react";
+import { cancelAppointment } from "../Features/appointmentslice";
 
 const MyAppointments = () => {
   const dispatch = useDispatch();
@@ -37,6 +38,23 @@ const MyAppointments = () => {
     dispatch(addData(appointment));
     dispatch(openModal("appointmentDetails"));
   };
+
+   const handleCancel = (appointmentId) => {
+      const confirmCancel = window.confirm(
+        "Are you sure you want to cancel this appointment?"
+      );
+      if (!confirmCancel) return;
+  
+      dispatch(cancelAppointment(appointmentId))
+        .unwrap()
+        .then(() => {
+          // Optional: re-fetch appointments after cancel
+          dispatch(fetchMyAppointments());
+        })
+        .catch((err) => {
+          console.error("Cancel failed:", err);
+        });
+    };
 
   const filteredAppointments = appointments?.filter(app => {
     if (filter === "all") return true;
@@ -233,7 +251,10 @@ const MyAppointments = () => {
                     </button>
                     
                     {app.status === "booked" && (
-                      <button className="flex items-center gap-2 border border-red-600 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors">
+                      <button className="flex items-center gap-2 border border-red-600 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors"
+                      onClick={()=>{
+                        handleCancel(app._id)
+                      }}>
                         Cancel
                       </button>
                     )}

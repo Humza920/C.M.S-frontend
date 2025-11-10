@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { checkAuth } from "./Features/authslice";
 import { fetchDoctorsAll } from "./Features/dashboardslice";
@@ -25,6 +25,7 @@ import DoctorAppointments from "./Pages/DoctorAppointment";
 import ManageDoctors from "./Pages/ManageDoctors";
 import ManagePatients from "./Pages/ManagePatients";
 import StaffAppointments from "./Pages/StaffAppointments";
+import DoctorProfile from "./Pages/DoctorProfile";
 
 
 const router = createBrowserRouter([
@@ -60,7 +61,7 @@ const router = createBrowserRouter([
       {
         path: "my-profile",
         element: (
-          <ProtectedRoute allowedRoles={["Patient", "Doctor", "Staff"]}>
+          <ProtectedRoute allowedRoles={["Patient"]}>
             <MyProfile />
           </ProtectedRoute>
         ),
@@ -91,6 +92,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["Doctor"]}>
             <MyCaseHistory />
+          </ProtectedRoute>
+        ),
+      },
+            {
+        path: "doc-profile",
+        element: (
+          <ProtectedRoute allowedRoles={["Doctor"]}>
+            <DoctorProfile />
           </ProtectedRoute>
         ),
       },

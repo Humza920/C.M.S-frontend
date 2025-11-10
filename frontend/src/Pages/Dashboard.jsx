@@ -17,7 +17,7 @@ const dispatch = useDispatch()
     Doctor: [
       { path: "/dashboard/appointments", label: "Appointments", icon: CalendarCheck },
       { path: "/dashboard/history", label: "History", icon: Users },
-      { path: "/dashboard/my-profile", label: "My Profile", icon: User },
+      { path: "/dashboard/doc-profile", label: "My Profile", icon: User },
     ],
     Staff: [
       { path: "/dashboard/manage-doctors", label: "Manage Doctors", icon: Users },

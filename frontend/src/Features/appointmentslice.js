@@ -10,7 +10,7 @@ export const cancelAppointment = createAsyncThunk(
   async (appointmentId, thunkAPI) => {
     try {
       const { data } = await api.delete(
-        `/api/appointment/cancel/${appointmentId}`,
+        `/api/appointment/${appointmentId}`,
         { withCredentials: true }
       );
       return data.appointment || appointmentId; // backend agar appointment return nahi kare to ID bhi use ho sakta
