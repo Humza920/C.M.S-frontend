@@ -174,7 +174,7 @@ const Navbar = () => {
                         {[
                           { icon: User, label: "My Profile", path: "/my-profile" },
                           { icon: Calendar, label: "Appointments", path: "/my-appointments" },
-                          { icon: FileText, label: "Medical Records", path: "/medical-records" },
+                          { icon: FileText, label: "Medical Records", path: "/my-case-history" },
                         ].map((item) => (
                           <Link
                             key={item.label}

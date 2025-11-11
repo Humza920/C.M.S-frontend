@@ -157,7 +157,7 @@ const authSlice = createSlice({
 
       .addCase(checkAuth.rejected, (state, action) => {
         state.loading = false;
-        state.user = null;
+        state.error = action.payload
       })
       .addCase(sendInvite.pending, (state) => {
         state.loading = true;
@@ -170,7 +170,7 @@ const authSlice = createSlice({
       })
       .addCase(sendInvite.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload.message
         state.success = false;
       });
 

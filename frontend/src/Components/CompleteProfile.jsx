@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateProfile } from "../Features/authslice";
+import { checkAuth, updateProfile } from "../Features/authslice";
 import { closeModal } from "../Features/modalSlice";
 import {
   User,
@@ -121,6 +121,7 @@ export default function CompleteProfile() {
 
     try {
       await dispatch(updateProfile(payload)).unwrap();
+      dispatch(checkAuth())
       dispatch(closeModal());
     } catch (err) {
       console.error(err);

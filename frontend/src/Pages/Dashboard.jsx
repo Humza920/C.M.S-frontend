@@ -1,16 +1,23 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { useSelector , useDispatch} from "react-redux";
-import { User,  CalendarCheck, Users } from "lucide-react";
+import { NavLink, Outlet, Navigate, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { User, CalendarCheck, Users } from "lucide-react";
 import { useEffect } from "react";
 import { fetchDashboardData } from "../Features/dashboardslice";
+import { openModal } from "../Features/modalSlice";
 
 const Dashboard = () => {
   const { user, role } = useSelector((state) => state.auth);
-const dispatch = useDispatch()
-  useEffect(()=>{
-    dispatch(fetchDashboardData())
-  },[])
-  if (!user) return null; // agar user login nahi hai toh kuch nahi dikhayega
+  const dispatch = useDispatch();
+  const location = useLocation();
+
+  useEffect(() => {
+    dispatch(fetchDashboardData());
+        if (user && !user.userId?.isProfileComplete) {
+          dispatch(openModal("completeProfile"));
+        }
+  }, [user , dispatch]);
+
+  if (!user) return null;
 
   // --- Role-based links ---
   const links = {
@@ -27,6 +34,15 @@ const dispatch = useDispatch()
   };
 
   const roleLinks = links[role] || [];
+
+  // --- Default redirect based on role ---
+  if (location.pathname === "/dashboard") {
+    if (role === "Doctor") {
+      return <Navigate to="/dashboard/appointments" replace />;
+    } else if (role === "Staff") {
+      return <Navigate to="/dashboard/manage-doctors" replace />;
+    }
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-100">

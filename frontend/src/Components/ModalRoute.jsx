@@ -5,8 +5,9 @@ import UpdateAppointmentModal from "./UpdateAppointmentModal";
 import { closeModal } from "../Features/modalSlice";
 import { useEffect } from "react";
 import AppointmentDetailsModal from "./AppointmentDetailsModal";
-import InviteModal from "./inviteModal";
+import InviteModal from "./InviteModal";
 import ViewDetails from "./ViewDetails";
+import MedicalRecordsModal from "./MedicalRecordsModal";
 
 export default function ModalRoute() {
   const dispatch = useDispatch();
@@ -47,6 +48,8 @@ export default function ModalRoute() {
         {modalType === "appointmentDetails" && <AppointmentDetailsModal />}
         {modalType === "invitemodal" && <InviteModal />}
         {modalType === "viewDetails" && <ViewDetails />}
+        {modalType === "viewpatienthistorydetails" && <MedicalRecordsModal />}
+        
 
 
       </div>

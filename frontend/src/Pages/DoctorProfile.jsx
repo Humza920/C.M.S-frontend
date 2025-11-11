@@ -1,13 +1,23 @@
-import { useSelector } from "react-redux";
+import { useSelector , useDispatch} from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { updateProfile , logout} from "../Features/authslice";
+import {logout} from "../Features/authslice";
 import { User, Mail, Phone, MapPin, Calendar, Award, Stethoscope, Clock, Heart, Shield, Star, Edit } from 'lucide-react';
+import { openModal } from "../Features/modalSlice";
 
 const DoctorProfile = () => {
   const { user, loading , role } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   const base = user.userId || {};
   const profileData = base.role === "Doctor" ? user : user;
+
+  function handleEditProfile() {
+    dispatch(openModal("completeProfile"))
+  }
+
+  function handleLogout() {
+    dispatch(logout())
+  }
 
   if (loading) {
     return (
@@ -94,9 +104,17 @@ const DoctorProfile = () => {
                   <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full font-semibold text-sm">
                     {base.role}
                   </span>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2">
+                  <button className="bg-blue-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2" onClick={handleEditProfile}>
                     <Edit className="w-4 h-4" />
                     Edit Profile
+                  </button>
+
+                  <button
+                    className="bg-red-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-red-700 transition-colors flex items-center gap-2"
+                    onClick={handleLogout}
+                  >
+                    <Edit className="w-4 h-4" />
+                    Logout
                   </button>
                 </div>
               </div>

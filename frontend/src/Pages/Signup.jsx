@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { register, checkAuth } from "../Features/authslice";
 import toast from "react-hot-toast";
@@ -8,6 +8,13 @@ export default function Signup() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, loading } = useSelector((state) => state.auth);
+  const location = useLocation();
+
+  const params = new URLSearchParams(location.search);
+  const role = params.get("role") || "Patient";
+  const token = params.get("token") || null;
+  console.log(role);
+  console.log(token);
 
   const [userName, setUserName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
@@ -19,12 +26,13 @@ export default function Signup() {
     e.preventDefault();
     try {
       await dispatch(
-        register({ userName, emailAddress, password, cnic })
+        register({ userName, emailAddress, password, cnic, role, token })
       ).unwrap();
       toast.success("Account created successfully! 🎉", {
         duration: 3000,
         position: "top-right",
       });
+
       dispatch(checkAuth());
     } catch (error) {
       toast.error(error?.message || "Signup failed! ❌", {

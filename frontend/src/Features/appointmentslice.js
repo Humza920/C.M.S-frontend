@@ -1,19 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { api } from "../api";
 
-
-
-
 // --- Cancel Appointment ---
 export const cancelAppointment = createAsyncThunk(
   "dashboard/cancelAppointment",
   async (appointmentId, thunkAPI) => {
     try {
-      const { data } = await api.delete(
-        `/api/appointment/${appointmentId}`,
-        { withCredentials: true }
-      );
-      return data.appointment || appointmentId; // backend agar appointment return nahi kare to ID bhi use ho sakta
+      const { data } = await api.delete(`/api/appointment/${appointmentId}`, {
+        withCredentials: true,
+      });
+      return data.appointment || appointmentId;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to cancel appointment"
@@ -22,13 +18,16 @@ export const cancelAppointment = createAsyncThunk(
   }
 );
 
-
 // --- Fetch My Appointments ---
 export const fetchMyAppointments = createAsyncThunk(
   "dashboard/fetchMyAppointments",
   async (_, thunkAPI) => {
     try {
-      const { data } = await api.get("/api/patient/myapp", {}, { withCredentials: true });
+      const { data } = await api.get(
+        "/api/patient/myapp",
+        {},
+        { withCredentials: true }
+      );
       return data.appointments;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -38,7 +37,6 @@ export const fetchMyAppointments = createAsyncThunk(
   }
 );
 
-
 // --- Book Appointment ---
 export const bookAppointment = createAsyncThunk(
   "dashboard/bookAppointment",
@@ -47,16 +45,9 @@ export const bookAppointment = createAsyncThunk(
       const [startAt, endAt] = time.split(" - ");
       const { data } = await api.post(
         `/api/appointment/bookAppointment/${doctorId}`,
-        {
-          doctorId,
-          appointmentDate: date,
-          startAt,
-          endAt,
-          day,
-        },
+        { doctorId, appointmentDate: date, startAt, endAt, day },
         { withCredentials: true }
       );
-
       return data.appointment;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -66,16 +57,15 @@ export const bookAppointment = createAsyncThunk(
   }
 );
 
-
 // --- Fetch Doctor's Appointments ---
 export const fetchDoctorAppointments = createAsyncThunk(
   "dashboard/fetchDoctorAppointments",
   async (_, thunkAPI) => {
     try {
-      const { data } = await api.get("/api/doctor/mydocapp", { withCredentials: true });
-      console.log(data);
-      
-      return data.data; // assuming backend returns { success, data: [...appointments] }
+      const { data } = await api.get("/api/doctor/mydocapp", {
+        withCredentials: true,
+      });
+      return data.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to fetch doctor appointments"
@@ -103,39 +93,15 @@ export const fetchAvailableSlots = createAsyncThunk(
 );
 
 
-// --- Add Appointment Notes (Complete with diagnosis) ---
-export const addAppointmentNotes = createAsyncThunk(
-  "dashboard/addAppointmentNotes",
-  async ({ appointmentId, diagnosis, prescription, notes, followUpDate }, thunkAPI) => {
-    try {
-      const { data } = await api.patch(
-        `/api/appointment/updateStatus/${appointmentId}`,
-        { 
-          status: "completed",
-          diagnosis,
-          prescription,
-          notes,
-          followUpDate 
-        },
-        { withCredentials: true }
-      );
-      return data.appointment;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to add appointment notes"
-      );
-    }
-  }
-);
 
-// --- Update Appointment Status (Checked-in) ---
+
 export const updateAppointmentStatus = createAsyncThunk(
   "dashboard/updateAppointmentStatus",
-  async ({ appointmentId, status }, thunkAPI) => {
+  async ({ appointmentId, status, diagnosis, prescription, notes, followUpDate }, thunkAPI) => {
     try {
       const { data } = await api.patch(
-        `/api/appointment/updateStatus/${appointmentId}`,
-        { status },
+        `/api/doctor/updateStatus/${appointmentId}`,
+        { status, diagnosis, prescription, notes, followUpDate },
         { withCredentials: true }
       );
       return data.appointment;
@@ -147,13 +113,12 @@ export const updateAppointmentStatus = createAsyncThunk(
   }
 );
 
-
 const initialState = {
   loading: false,
   appointments: [],
   error: null,
   success: null,
-  slots : [] 
+  slots: [],
 };
 
 const appointmentSlice = createSlice({
@@ -167,11 +132,9 @@ const appointmentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // --- Book Appointment ---
+
       .addCase(bookAppointment.pending, (state) => {
         state.loading = true;
-        state.error = null;
-        state.success = null;
       })
       .addCase(bookAppointment.fulfilled, (state, action) => {
         state.loading = false;
@@ -183,10 +146,9 @@ const appointmentSlice = createSlice({
         state.error = action.payload;
       })
 
-      // --- Fetch My Appointments (Patient) ---
+   
       .addCase(fetchMyAppointments.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchMyAppointments.fulfilled, (state, action) => {
         state.loading = false;
@@ -197,10 +159,8 @@ const appointmentSlice = createSlice({
         state.error = action.payload;
       })
 
-      // --- Fetch Doctor Appointments ---
       .addCase(fetchDoctorAppointments.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchDoctorAppointments.fulfilled, (state, action) => {
         state.loading = false;
@@ -211,76 +171,59 @@ const appointmentSlice = createSlice({
         state.error = action.payload;
       })
 
-      // --- Add Appointment Notes ---
-      .addCase(addAppointmentNotes.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(addAppointmentNotes.fulfilled, (state, action) => {
-        state.loading = false;
-        state.success = "Appointment notes added successfully!";
-        const index = state.appointments.findIndex(a => a._id === action.payload._id);
-        if (index !== -1) state.appointments[index] = action.payload;
-      })
-      .addCase(addAppointmentNotes.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
-      // --- Update Appointment Status ---
       .addCase(updateAppointmentStatus.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(updateAppointmentStatus.fulfilled, (state, action) => {
-        state.loading = false;
-        state.success = "Appointment status updated!";
-        const index = state.appointments.findIndex(a => a._id === action.payload._id);
-        if (index !== -1) state.appointments[index] = action.payload;
-      })
-      .addCase(updateAppointmentStatus.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-       // --- Fetch Available Slots ---
+.addCase(updateAppointmentStatus.fulfilled, (state, action) => {
+  state.loading = false;
+  state.success = `Appointment status updated to ${action.payload.status}!`;
+
+  const index = state.appointments.findIndex(
+    (a) => a._id === action.payload._id
+  );
+
+
+  if (index !== -1) {
+    state.appointments[index].status = action.payload.status;
+  }
+})
+.addCase(updateAppointmentStatus.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+})
+
       .addCase(fetchAvailableSlots.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchAvailableSlots.fulfilled, (state, action) => {
         state.loading = false;
-        state.slots = Array.isArray(action.payload) ? action.payload : [];
+        state.slots = Array.isArray(action.payload)
+          ? action.payload
+          : [];
       })
       .addCase(fetchAvailableSlots.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-        // --- Cancel Appointment ---
-    .addCase(cancelAppointment.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-      state.success = null;
-    })
-    .addCase(cancelAppointment.fulfilled, (state, action) => {
-      state.loading = false;
-      state.success = "Appointment cancelled successfully!";
-      // Remove or update cancelled appointment
-      const index = state.appointments.findIndex(a => a._id === action.payload._id || a._id === action.payload);
-      if (index !== -1) {
-        // Option 1: Remove from array
-        // state.appointments.splice(index, 1);
-        
-        // Option 2: Soft update status
-        state.appointments[index].status = "Cancelled";
-      }
-    })
-    .addCase(cancelAppointment.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
+      .addCase(cancelAppointment.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(cancelAppointment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = "Appointment cancelled successfully!";
+        const index = state.appointments.findIndex(
+          (a) => a._id === action.payload._id || a._id === action.payload
+        );
+        if (index !== -1) {
+          state.appointments[index].status = "Cancelled";
+        }
+      })
+      .addCase(cancelAppointment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
-  
 });
 
 export const { clearMessages } = appointmentSlice.actions;

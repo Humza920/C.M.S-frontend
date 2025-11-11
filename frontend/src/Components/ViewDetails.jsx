@@ -1,5 +1,4 @@
 // components/ViewDetailsModal.jsx
-import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { closeModal } from '../Features/modalSlice';
 import { User, Mail, Phone, MapPin, Calendar, Award, Stethoscope, Clock, Heart, Shield, Star, X, IndianRupee } from 'lucide-react';

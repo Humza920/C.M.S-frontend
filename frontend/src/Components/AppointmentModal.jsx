@@ -29,12 +29,10 @@ const AppointmentModal = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [bookingStep, setBookingStep] = useState(1); // 1: Select slot, 2: Confirm details
 
-  // ✅ Fetch Slots
   useEffect(() => {
     if (doctor) dispatch(fetchAvailableSlots({ doctorId: doctor._id, range }));
   }, [doctor, range, dispatch]);
 
-  // ✅ Handle Toasts for Success & Error
   useEffect(() => {
     if (success) {
       toast.success(success, { duration: 4000, position: "top-center" });
