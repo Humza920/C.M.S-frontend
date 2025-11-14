@@ -32,6 +32,7 @@ export default function CompleteProfile() {
   const [gender, setGender] = useState("Other");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [profileImg, setProfileImg] = useState("");
+  const [previewImg , setPreviewImg] = useState("")
 
   // --- Patient fields ---
   const [age, setAge] = useState("");
@@ -51,6 +52,14 @@ export default function CompleteProfile() {
   const [availableTime, setAvailableTime] = useState(""); // "17:00-20:00"
   const [location, setLocation] = useState("");
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImg(file);
+      setPreviewImg(URL.createObjectURL(file)); // live preview
+    }
+  };
+
   // --- Pre-fill user data ---
   useEffect(() => {
     if (!user) return;
@@ -67,7 +76,9 @@ export default function CompleteProfile() {
       setFees(user.fees || 0);
       setAvailableDays(user.availableDays?.join(", ") || "");
       setAvailableTime(
-        user.availableTime ? `${user.availableTime.start}-${user.availableTime.end}` : ""
+        user.availableTime
+          ? `${user.availableTime.start}-${user.availableTime.end}`
+          : ""
       );
       setLocation(user.location?.country || "");
     } else {
@@ -80,60 +91,82 @@ export default function CompleteProfile() {
     }
   }, [user, role]);
 
+  console.log(JSON.stringify({ phone: emergencyPhone }));
+  
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const payload =
-      role === "Doctor"
-        ? {
-            gender,
-            phoneNumber,
-            specialization,
-            qualification,
-            experience,
-            about,
-            profileImg,
-            fees,
-            availableDays: availableDays
-              .split(",")
-              .map((d) => d.trim())
-              .filter((d) => d),
-            availableTime: {
-              start: availableTime.split("-")[0]?.trim() || "",
-              end: availableTime.split("-")[1]?.trim() || "",
-            },
-            location: { country: location },
-          }
-        : {
-            age,
-            gender,
-            phoneNumber,
-            medicalHistory,
-            allergies: allergies
-              .split(",")
-              .map((a) => a.trim())
-              .filter((a) => a),
-            emergencyContact: { phone: emergencyPhone },
-            profileImg,
-            bloodGroup,
-            address,
-          };
+  const formData = new FormData();
 
-    try {
-      await dispatch(updateProfile(payload)).unwrap();
-      dispatch(checkAuth())
-      dispatch(closeModal());
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // 🔹 Common fields
+  formData.append("gender", gender);
+  formData.append("phoneNumber", phoneNumber);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfileImg(URL.createObjectURL(file));
-    }
-  };
+  if (profileImg) {
+    formData.append("profileimg", profileImg); // actual file append ho rahi hai
+  }
+
+  if (role === "Doctor") {
+    formData.append("specialization", specialization);
+    formData.append("qualification", qualification);
+    formData.append("experience", experience);
+    formData.append("about", about);
+    formData.append("fees", fees);
+
+    // Convert availableDays to JSON string
+    formData.append(
+      "availableDays",
+      JSON.stringify(
+        availableDays
+          .split(",")
+          .map((d) => d.trim())
+          .filter((d) => d)
+      )
+    );
+
+    // Convert availableTime to JSON
+    const [start, end] = availableTime.split("-");
+    formData.append(
+      "availableTime",
+      JSON.stringify({
+        start: start?.trim() || "",
+        end: end?.trim() || "",
+      })
+    );
+
+    // location as JSON
+    formData.append("location", JSON.stringify({ country: location }));
+  } else {
+    formData.append("age", age);
+    formData.append("medicalHistory", medicalHistory);
+    formData.append(
+      "allergies",
+      JSON.stringify(
+        allergies
+          .split(",")
+          .map((a) => a.trim())
+          .filter((a) => a)
+      )
+    );
+    formData.append(
+      "emergencyContact",
+      JSON.stringify({ phone: emergencyPhone })
+    );
+    formData.append("bloodGroup", bloodGroup);
+    formData.append("address", address);
+  }
+
+  try {
+    await dispatch(updateProfile(formData)).unwrap();
+    dispatch(checkAuth());
+    dispatch(closeModal());
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
@@ -152,13 +185,13 @@ export default function CompleteProfile() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-white">
-                  Complete Your {role === "Doctor" ? "Doctor" : "Patient"} Profile
+                  Complete Your {role === "Doctor" ? "Doctor" : "Patient"}{" "}
+                  Profile
                 </h2>
                 <p className="text-blue-100 text-sm mt-1">
-                  {role === "Doctor" 
-                    ? "Set up your professional profile to start accepting patients" 
-                    : "Complete your profile for personalized healthcare experience"
-                  }
+                  {role === "Doctor"
+                    ? "Set up your professional profile to start accepting patients"
+                    : "Complete your profile for personalized healthcare experience"}
                 </p>
               </div>
             </div>
@@ -179,7 +212,7 @@ export default function CompleteProfile() {
                 <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center overflow-hidden border-4 border-white shadow-xl">
                   {profileImg ? (
                     <img
-                      src={profileImg}
+                      src={previewImg || user.profileImg}
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
@@ -193,18 +226,23 @@ export default function CompleteProfile() {
                     type="file"
                     className="hidden"
                     accept="image/*"
-                    onChange={handleImageUpload}
+                    onChange={handleImageChange}
                   />
                 </label>
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-gray-800 text-lg">Profile Photo</h3>
+                <h3 className="font-bold text-gray-800 text-lg">
+                  Profile Photo
+                </h3>
                 <p className="text-gray-600 text-sm mt-1">
-                  Upload a professional photo for better identification and trust
+                  Upload a professional photo for better identification and
+                  trust
                 </p>
                 <div className="flex items-center space-x-2 mt-2">
                   <Shield className="h-4 w-4 text-blue-500" />
-                  <span className="text-xs text-gray-500">Secure and private</span>
+                  <span className="text-xs text-gray-500">
+                    Secure and private
+                  </span>
                 </div>
               </div>
             </div>
@@ -227,7 +265,7 @@ export default function CompleteProfile() {
                 <option value="Other">Other</option>
               </select>
             </div>
-            
+
             <div className="space-y-2">
               <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
                 <Phone className="h-4 w-4 text-blue-500" />
@@ -251,7 +289,7 @@ export default function CompleteProfile() {
                   <BriefcaseMedical className="h-5 w-5 text-blue-600" />
                   <span>Professional Information</span>
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
@@ -266,7 +304,7 @@ export default function CompleteProfile() {
                       placeholder="Cardiology, Neurology, etc."
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
                       <GraduationCap className="h-4 w-4 text-blue-500" />
@@ -280,7 +318,7 @@ export default function CompleteProfile() {
                       placeholder="MD, MBBS, PhD, etc."
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
                       <Calendar className="h-4 w-4 text-blue-500" />
@@ -295,7 +333,7 @@ export default function CompleteProfile() {
                       max="50"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
                       <DollarSign className="h-4 w-4 text-blue-500" />
@@ -327,7 +365,7 @@ export default function CompleteProfile() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
                     <Clock className="h-4 w-4 text-blue-500" />
@@ -380,7 +418,7 @@ export default function CompleteProfile() {
                   <Heart className="h-5 w-5 text-blue-600" />
                   <span>Health Information</span>
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
@@ -397,7 +435,7 @@ export default function CompleteProfile() {
                       max="120"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
                       <Droplets className="h-4 w-4 text-blue-500" />
@@ -428,7 +466,7 @@ export default function CompleteProfile() {
                   <AlertTriangle className="h-5 w-5 text-blue-600" />
                   <span>Medical Details</span>
                 </h3>
-                
+
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
@@ -443,7 +481,7 @@ export default function CompleteProfile() {
                       placeholder="Any past medical conditions, surgeries, or chronic illnesses..."
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
                       <AlertTriangle className="h-4 w-4 text-blue-500" />
@@ -475,7 +513,7 @@ export default function CompleteProfile() {
                     placeholder="Emergency phone number"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
                     <Home className="h-4 w-4 text-blue-500" />

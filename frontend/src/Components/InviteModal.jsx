@@ -19,6 +19,10 @@ const InviteModal = () => {
 
   const [formErrors, setFormErrors] = useState({});
   const [activeTab, setActiveTab] = useState("basic");
+  const [tabsCompleted, setTabsCompleted] = useState({
+    basic: false,
+    schedule: false
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,7 +39,7 @@ const InviteModal = () => {
     }
   };
 
-  const validateForm = () => {
+  const validateBasicTab = () => {
     const errors = {};
 
     if (!formData.email) {
@@ -55,48 +59,81 @@ const InviteModal = () => {
     }
 
     setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    
+    const basicTabValid = Object.keys(errors).length === 0;
+    setTabsCompleted(prev => ({ ...prev, basic: basicTabValid }));
+    
+    return basicTabValid;
+  };
+
+  const validateScheduleTab = () => {
+    const scheduleTabValid = formData.invitedDays.length > 0;
+    setTabsCompleted(prev => ({ ...prev, schedule: scheduleTabValid }));
+    return scheduleTabValid;
+  };
+
+  const validateForm = () => {
+    const basicValid = validateBasicTab();
+    const scheduleValid = validateScheduleTab();
+    
+    return basicValid && scheduleValid;
   };
 
   const handleDaysChange = (day) => {
     setFormData((prev) => {
       const exists = prev.invitedDays.includes(day);
+      const newDays = exists
+        ? prev.invitedDays.filter((d) => d !== day)
+        : [...prev.invitedDays, day];
+      
+      // Auto-validate schedule tab when days change
+      if (newDays.length > 0) {
+        setTabsCompleted(prev => ({ ...prev, schedule: true }));
+      } else {
+        setTabsCompleted(prev => ({ ...prev, schedule: false }));
+      }
+      
       return {
         ...prev,
-        invitedDays: exists
-          ? prev.invitedDays.filter((d) => d !== day)
-          : [...prev.invitedDays, day],
+        invitedDays: newDays,
       };
     });
   };
 
+  const handleTabChange = (tab) => {
+    if (tab === "schedule") {
+      // Validate basic tab before allowing navigation to schedule
+      if (!validateBasicTab()) {
+        toast.error("Please complete basic information first!");
+        return;
+      }
+    }
+    setActiveTab(tab);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (!validateForm()) {
-      toast.error("Please fix the errors before submitting!");
+      if (!tabsCompleted.basic) {
+        toast.error("Please complete basic information!");
+        setActiveTab("basic");
+      } else if (!tabsCompleted.schedule) {
+        toast.error("Please select at least one working day!");
+        setActiveTab("schedule");
+      }
       return;
     }
 
     try {
-      await dispatch(sendInvite(formData)).unwrap();
-    } catch (err) {
-      console("Failed to send invite:", err);
-    }
-  };
-
-  useEffect(() => {
-    if (success) {
+      dispatch(sendInvite(formData))
       toast.success("Invitation sent successfully!");
-      dispatch(closeModal());
-    }
-  }, [success]);
-
-  useEffect(() => {
-    if (error) {
+      dispatch(closeModal())
+    } catch (err) {
+      console.log("Failed to send invite:", err);
       toast.error(error);
     }
-  }, [error]);
-
+  };
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   const getInputClass = (fieldName) => {
@@ -129,24 +166,30 @@ const InviteModal = () => {
         {/* Tabs */}
         <div className="flex gap-4 mt-6">
           <button
-            onClick={() => setActiveTab("basic")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+            onClick={() => handleTabChange("basic")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative ${
               activeTab === "basic" 
                 ? "bg-white text-blue-600 shadow-md" 
                 : "text-blue-100 hover:bg-white/20"
             }`}
           >
             Basic Info
+            {tabsCompleted.basic && (
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></span>
+            )}
           </button>
           <button
-            onClick={() => setActiveTab("schedule")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+            onClick={() => handleTabChange("schedule")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative ${
               activeTab === "schedule" 
                 ? "bg-white text-blue-600 shadow-md" 
                 : "text-blue-100 hover:bg-white/20"
             }`}
           >
             Schedule
+            {tabsCompleted.schedule && (
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></span>
+            )}
           </button>
         </div>
       </div>
@@ -253,7 +296,7 @@ const InviteModal = () => {
               {/* Invited Days */}
               <div>
                 <label className="block text-sm font-semibold mb-3 text-gray-700">
-                  Working Days
+                  Working Days *
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   {days.map((day) => (
@@ -272,8 +315,8 @@ const InviteModal = () => {
                   ))}
                 </div>
                 {formData.invitedDays.length === 0 && (
-                  <p className="mt-3 text-sm text-gray-500 text-center bg-gray-50 py-2 rounded-xl">
-                    Select working days for the schedule
+                  <p className="mt-3 text-sm text-red-500 text-center bg-red-50 py-2 rounded-xl">
+                    Please select at least one working day
                   </p>
                 )}
               </div>
@@ -335,8 +378,8 @@ const InviteModal = () => {
       <div className="border-t border-gray-200 bg-gray-50 p-6">
         <div className="flex justify-between items-center">
           <div className="flex gap-2">
-            <div className={`w-2 h-2 rounded-full ${activeTab === "basic" ? "bg-blue-500" : "bg-gray-300"}`}></div>
-            <div className={`w-2 h-2 rounded-full ${activeTab === "schedule" ? "bg-blue-500" : "bg-gray-300"}`}></div>
+            <div className={`w-2 h-2 rounded-full ${tabsCompleted.basic ? "bg-green-500" : "bg-gray-300"}`}></div>
+            <div className={`w-2 h-2 rounded-full ${tabsCompleted.schedule ? "bg-green-500" : "bg-gray-300"}`}></div>
           </div>
           
           <div className="flex gap-3">
@@ -351,10 +394,10 @@ const InviteModal = () => {
             <button
               type="submit"
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || !tabsCompleted.basic || !tabsCompleted.schedule}
               className={`px-8 py-2.5 rounded-xl text-white font-medium transition-all duration-200 flex items-center gap-2 text-sm ${
-                loading
-                  ? "bg-blue-400 cursor-not-allowed"
+                loading || !tabsCompleted.basic || !tabsCompleted.schedule
+                  ? "bg-gray-400 cursor-not-allowed"
                   : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg"
               }`}
             >

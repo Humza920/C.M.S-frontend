@@ -12,8 +12,6 @@ import ModalRoute from "./Components/ModalRoute";
 
 // Pages
 import Home from "./Pages/Home";
-import Contact from "./Pages/Contact";
-import About from "./Pages/About";
 import OurDoctors from "./Pages/OurDoctors";
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
@@ -26,6 +24,7 @@ import ManageDoctors from "./Pages/ManageDoctors";
 import ManagePatients from "./Pages/ManagePatients";
 import StaffAppointments from "./Pages/StaffAppointments";
 import DoctorProfile from "./Pages/DoctorProfile";
+import DoctorHistory from "./Pages/DoctorHistory";
 
 
 const router = createBrowserRouter([
@@ -35,8 +34,6 @@ const router = createBrowserRouter([
     children: [
       // --- Public Routes ---
       { index: true, element: <Home /> },
-      { path: "about", element: <About /> },
-      { path: "contact", element: <Contact /> },
       { path: "our-doctors", element: <OurDoctors /> },
       { path: "login", element: <Login /> },
       { path: "signup", element: <Signup /> },
@@ -84,6 +81,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["Doctor"]}>
             <DoctorAppointments />
+          </ProtectedRoute>
+        ),
+      },
+       {
+        path: "history",
+        element: (
+          <ProtectedRoute allowedRoles={["Doctor"]}>
+            <DoctorHistory />
           </ProtectedRoute>
         ),
       },

@@ -6,7 +6,7 @@ export const fetchMyCaseHistories = createAsyncThunk(
   "caseHistory/fetchMyCaseHistories",
   async (_, thunkAPI) => {
     try {
-      const { data } = await api.get("/api/dashboard/casehistory", {
+      const { data } = await api.get("/api/patient/casehistory", {
         withCredentials: true,
       });
       console.log(data.caseHistories);

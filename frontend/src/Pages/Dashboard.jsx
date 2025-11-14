@@ -12,24 +12,42 @@ const Dashboard = () => {
 
   useEffect(() => {
     dispatch(fetchDashboardData());
-        if (user && !user.userId?.isProfileComplete) {
-          dispatch(openModal("completeProfile"));
-        }
-  }, [user , dispatch]);
+    if (role === "Doctor") {
+      if (user && !user.userId?.isProfileComplete) {
+        dispatch(openModal("completeProfile"));
+      }
+    }
+  }, [user, dispatch]);
 
   if (!user) return null;
 
   // --- Role-based links ---
   const links = {
     Doctor: [
-      { path: "/dashboard/appointments", label: "Appointments", icon: CalendarCheck },
+      {
+        path: "/dashboard/appointments",
+        label: "Appointments",
+        icon: CalendarCheck,
+      },
       { path: "/dashboard/history", label: "History", icon: Users },
       { path: "/dashboard/doc-profile", label: "My Profile", icon: User },
     ],
     Staff: [
-      { path: "/dashboard/manage-doctors", label: "Manage Doctors", icon: Users },
-      { path: "/dashboard/manage-patients", label: "Manage Patients", icon: Users },
-      { path: "/dashboard/staffappointments", label: "Appointments", icon: CalendarCheck },
+      {
+        path: "/dashboard/manage-doctors",
+        label: "Manage Doctors",
+        icon: Users,
+      },
+      {
+        path: "/dashboard/manage-patients",
+        label: "Manage Patients",
+        icon: Users,
+      },
+      {
+        path: "/dashboard/staffappointments",
+        label: "Appointments",
+        icon: CalendarCheck,
+      },
     ],
   };
 

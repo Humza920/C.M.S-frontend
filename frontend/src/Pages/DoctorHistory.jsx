@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchMyCaseHistories } from "../Features/caseHistoryslice";
 import { addData, openModal } from "../Features/modalSlice";
 
-const MyCaseHistory = () => {
+const DoctorHistory = () => {
   const dispatch = useDispatch();
   const { caseHistories, loading, error } = useSelector((state) => state.caseHistory);
   const [filter, setFilter] = useState("all");
@@ -18,7 +18,6 @@ const MyCaseHistory = () => {
     dispatch(fetchMyCaseHistories());
   }, [dispatch]);
 
-  // Filter and search functionality
   const filteredHistories = caseHistories.filter(history => {
     const matchesSearch = history.diagnosis?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          history.prescription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -297,4 +296,4 @@ const MyCaseHistory = () => {
   );
 };
 
-export default MyCaseHistory;
+export default DoctorHistory;

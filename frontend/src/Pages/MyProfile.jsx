@@ -18,7 +18,7 @@ import { openModal } from "../Features/modalSlice";
 import { logout } from "../Features/authslice";
 
 const MyProfile = () => {
-  const { user, loading, role } = useSelector((state) => state.auth);
+  const { user, loading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   function handleUpdateProfile() {
@@ -87,7 +87,7 @@ const MyProfile = () => {
               <div className="relative">
                 <img
                   src={
-                    base.profileImg ||
+                    user.profileImg ||
                     "https://cdn-icons-png.flaticon.com/512/847/847969.png"
                   }
                   alt="Profile"

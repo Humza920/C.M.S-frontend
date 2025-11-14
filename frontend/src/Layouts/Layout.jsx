@@ -6,7 +6,6 @@ const Layout = () => {
   const location = useLocation();
   const { role } = useSelector((state) => state.auth);
   
-  // Hide navbar on login/signup pages OR if user is Doctor
   const hideNavbar = 
     location.pathname === "/login" || 
     location.pathname === "/signup" || 

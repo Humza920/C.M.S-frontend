@@ -21,13 +21,27 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [cnic, setCnic] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [profileimg, setprofileimg] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!profileimg) {
+      return toast.error("Please upload a profile image! ❌");
+    }
+
     try {
-      await dispatch(
-        register({ userName, emailAddress, password, cnic, role, token })
-      ).unwrap();
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("emailAddress", emailAddress);
+      formData.append("password", password);
+      formData.append("cnic", cnic);
+      formData.append("role", role);
+      formData.append("token", token);
+      formData.append("profileimg", profileimg); 
+
+      await dispatch(register(formData)).unwrap();
+
       toast.success("Account created successfully! 🎉", {
         duration: 3000,
         position: "top-right",
@@ -51,23 +65,68 @@ export default function Signup() {
       {/* Responsive Card */}
       <div className="bg-white/90 backdrop-blur-md shadow-2xl rounded-3xl flex flex-col lg:flex-row max-w-5xl w-full overflow-hidden">
         {/* Left: Profile Image - Hidden on mobile, visible on lg+ */}
+        {/* Left: Profile Image Upload (Visible on lg+) */}
         <div className="lg:w-1/3 bg-gradient-to-br from-blue-500 to-purple-600 flex flex-col items-center justify-center p-6 lg:p-8 hidden lg:flex">
-          <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full bg-white/20 flex items-center justify-center shadow-lg mb-4">
-            <span className="text-4xl lg:text-5xl text-white">👤</span>
+          {/* Image Preview or Default Icon */}
+          <div className="w-28 h-28 lg:w-32 lg:h-32 rounded-full bg-white/20 flex items-center justify-center shadow-lg mb-4 overflow-hidden border-2 border-white/30">
+            {profileimg ? (
+              <img
+                src={URL.createObjectURL(profileimg)}
+                alt="Profile Preview"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-4xl lg:text-5xl text-white">👤</span>
+            )}
           </div>
-          <p className="text-white text-center text-sm lg:text-base">
-            Profile Image
+
+          {/* Upload Button */}
+          <label className="cursor-pointer bg-white/20 hover:bg-white/30 text-white text-sm font-medium px-4 py-2 rounded-full shadow-md transition-all duration-300">
+            Upload Image
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => setprofileimg(e.target.files[0])}
+            />
+          </label>
+
+          {/* Instruction Text */}
+          <p className="text-white text-center text-xs lg:text-sm mt-3 opacity-90">
+            Choose your profile image
           </p>
         </div>
 
         {/* Right: Form */}
         <div className="w-full lg:w-2/3 p-6 lg:p-10">
           {/* Header for mobile */}
+          {/* Mobile Header with Profile Upload */}
           <div className="lg:hidden text-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <span className="text-2xl text-white">👤</span>
+            {/* Profile Image Upload Preview */}
+            <div className="relative w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg overflow-hidden">
+              {profileimg ? (
+                <img
+                  src={URL.createObjectURL(profileimg)}
+                  alt="Profile Preview"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-2xl text-white">👤</span>
+              )}
+
+              {/* Upload Button (camera icon style) */}
+              <label className="absolute bottom-0 right-0 bg-white/90 text-blue-600 p-1.5 rounded-full shadow-md cursor-pointer hover:bg-white transition">
+                📷
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => setprofileimg(e.target.files[0])}
+                />
+              </label>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+
+            <h2 className="text-2xl font-bold text-gray-800 mb-1">
               Create Account
             </h2>
             <p className="text-gray-600 text-sm">Sign up to join HealthCare+</p>
