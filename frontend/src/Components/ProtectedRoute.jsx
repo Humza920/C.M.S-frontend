@@ -7,17 +7,14 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (loading) return <p>Loading authentication...</p>;
 
-  // ❌ No user logged in
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // ❌ User exists but doesn't have permission
   if (allowedRoles && !allowedRoles.includes(role)) {
     return <Navigate to="/" replace />;
   }
 
-  // ✅ Authorized user → allow page
   return children;
 };
 
