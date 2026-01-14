@@ -7,7 +7,7 @@ import { Toaster } from "react-hot-toast";
 
 // Layouts & Components
 import Layout from "./Layouts/Layout";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./Components/ProtectedRoute";
 import ModalRoute from "./Components/ModalRoute";
 
 // Pages
